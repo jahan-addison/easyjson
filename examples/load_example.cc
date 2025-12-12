@@ -1,9 +1,9 @@
 
+#include <easyjson.h>
 #include <filesystem>
 #include <iostream>
-#include <simplejson.h>
 
-using json::JSON;
+using easyjson::JSON;
 
 int main()
 {
@@ -26,7 +26,7 @@ int main()
     std::cout << Obj << std::endl;
 
     auto current_directory = fs::current_path();
-    JSON json_file = json::JSON::load_file(
+    JSON json_file = easyjson::JSON::load_file(
         (current_directory /= "examples/test.json").string());
     std::cout << "from file: " << json_file.dump() << std::endl;
     for (auto const& key : json_file["product"].dump_keys()) {

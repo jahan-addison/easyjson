@@ -1,8 +1,8 @@
 
+#include <easyjson.h>
 #include <iostream>
-#include <simplejson.h>
 
-using json::JSON;
+using easyjson::JSON;
 
 int main()
 {
@@ -14,8 +14,8 @@ int main()
     JSON Str2(std::string("C++String"));
     JSON Int(1);
     JSON Float(1.2);
-    JSON Arr = json::array();
-    JSON Obj = json::object();
+    JSON Arr = easyjson::array();
+    JSON Obj = easyjson::object();
 
     // Types can be overwritten by assigning
     // to the object again.
@@ -36,7 +36,7 @@ int main()
     // Arrays can be intialized with any elements and
     // they are turned into JSON objects. Variadic
     // Templates are pretty cool.
-    JSON Arr2 = json::array(2, "Test", true);
+    JSON Arr2 = easyjson::array(2, "Test", true);
 
     // Objects are accessed using operator[]( string ).
     // Will create new pairs on the fly, just as std::map
@@ -44,7 +44,7 @@ int main()
     Obj["Key1"] = 1.0;
     Obj["Key2"] = "Value";
 
-    JSON Obj2 = json::object();
+    JSON Obj2 = easyjson::object();
     Obj2["Key3"] = 1;
     Obj2["Key4"] = Arr;
     Obj2["Key5"] = Arr2;
