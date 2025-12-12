@@ -1,8 +1,8 @@
 
+#include <easyjson.h>
 #include <iostream>
-#include <simplejson.h>
 
-using json::JSON;
+using easyjson::JSON;
 
 int main()
 {

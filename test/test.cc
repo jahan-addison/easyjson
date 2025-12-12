@@ -7,11 +7,11 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <easyjson.h>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <iterator>
-#include <simplejson.h>
 #include <string_view>
 
 namespace fs = std::filesystem;
@@ -28,27 +28,27 @@ struct JSON_Fixture
     const long int_string = 5055559593;
 
     JSON_Fixture()
-        : object_test(json::JSON::load(object_string))
-        , array_test(json::JSON::load(array_string))
+        : object_test(easyjson::JSON::load(object_string))
+        , array_test(easyjson::JSON::load(array_string))
     {
     }
 
-    json::JSON object_test;
-    json::JSON null_test;
-    json::JSON array_test;
-    json::JSON string_test{ string_string };
-    json::JSON float_test{ float_string };
-    json::JSON bool_test{ bool_string };
-    json::JSON int_test{ int_string };
+    easyjson::JSON object_test;
+    easyjson::JSON null_test;
+    easyjson::JSON array_test;
+    easyjson::JSON string_test{ string_string };
+    easyjson::JSON float_test{ float_string };
+    easyjson::JSON bool_test{ bool_string };
+    easyjson::JSON int_test{ int_string };
 };
 
 inline std::string trim_string(std::string const& str)
 {
     std::string new_string;
     std::copy_if(str.begin(),
-                 str.end(),
-                 std::back_inserter(new_string),
-                 [](unsigned char c) { return !std::isspace(c); });
+        str.end(),
+        std::back_inserter(new_string),
+        [](unsigned char c) { return !std::isspace(c); });
 
     return new_string;
 }
@@ -66,7 +66,7 @@ TEST_CASE("Run all example cases without fail")
             std::string result(sz, '\0');
             f.read(result.data(), sz);
 
-            REQUIRE_NOTHROW(json::JSON::load(result));
+            REQUIRE_NOTHROW(easyjson::JSON::load(result));
 
             f.close();
         }
@@ -75,35 +75,35 @@ TEST_CASE("Run all example cases without fail")
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::constructors")
 {
-    json::JSON test{ object_test };
-    json::JSON test_2(false);
-    json::JSON null;
-    json::JSON test_3("hello");
-    json::JSON test_4(static_cast<double>(0.000005));
-    json::JSON test_5(555);
+    easyjson::JSON test{ object_test };
+    easyjson::JSON test_2(false);
+    easyjson::JSON null;
+    easyjson::JSON test_3("hello");
+    easyjson::JSON test_4(static_cast<double>(0.000005));
+    easyjson::JSON test_5(555);
 
-    REQUIRE(test.JSON_type() == json::JSON::Class::Object);
-    REQUIRE(null.JSON_type() == json::JSON::Class::Null);
-    REQUIRE(test_2.JSON_type() == json::JSON::Class::Boolean);
-    REQUIRE(test_3.JSON_type() == json::JSON::Class::String);
-    REQUIRE(test_4.JSON_type() == json::JSON::Class::Floating);
-    REQUIRE(test_5.JSON_type() == json::JSON::Class::Integral);
+    REQUIRE(test.JSON_type() == easyjson::JSON::Class::Object);
+    REQUIRE(null.JSON_type() == easyjson::JSON::Class::Null);
+    REQUIRE(test_2.JSON_type() == easyjson::JSON::Class::Boolean);
+    REQUIRE(test_3.JSON_type() == easyjson::JSON::Class::String);
+    REQUIRE(test_4.JSON_type() == easyjson::JSON::Class::Floating);
+    REQUIRE(test_5.JSON_type() == easyjson::JSON::Class::Integral);
 }
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::operator==")
 {
-    json::JSON test{ object_test };
-    json::JSON test2{ array_test };
-    json::JSON test3 = json::JSON::load(object_string);
-    json::JSON test4 = json::array();
+    easyjson::JSON test{ object_test };
+    easyjson::JSON test2{ array_test };
+    easyjson::JSON test3 = easyjson::JSON::load(object_string);
+    easyjson::JSON test4 = easyjson::array();
     const std::string array_string_test = "[\"a\",\"b\",\"c\"]";
-    test4[0] = json::JSON("a");
-    test4[1] = json::JSON("b");
-    test4[2] = json::JSON("c");
-    REQUIRE(json::object == json::object);
-    REQUIRE(json::JSON("test") == json::JSON("test"));
-    REQUIRE(json::JSON(1) == json::JSON(1));
-    REQUIRE(test4 == json::JSON::load(array_string_test));
+    test4[0] = easyjson::JSON("a");
+    test4[1] = easyjson::JSON("b");
+    test4[2] = easyjson::JSON("c");
+    REQUIRE(easyjson::object == easyjson::object);
+    REQUIRE(easyjson::JSON("test") == easyjson::JSON("test"));
+    REQUIRE(easyjson::JSON(1) == easyjson::JSON(1));
+    REQUIRE(test4 == easyjson::JSON::load(array_string_test));
     REQUIRE(test2 != object_test);
 #ifdef __clang__
     REQUIRE(test2 == array_test);
@@ -114,30 +114,30 @@ TEST_CASE_METHOD(JSON_Fixture, "JSON::operator==")
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::array")
 {
-    json::JSON test = json::array();
-    test[0] = json::JSON("a");
-    test[1] = json::JSON("b");
-    test[2] = json::JSON("c");
-    test[3] = json::JSON::load("{\"d\" : \"e\"}");
+    easyjson::JSON test = easyjson::array();
+    test[0] = easyjson::JSON("a");
+    test[1] = easyjson::JSON("b");
+    test[2] = easyjson::JSON("c");
+    test[3] = easyjson::JSON::load("{\"d\" : \"e\"}");
 
     REQUIRE(trim_string(test) == trim_string(std::string{ array_test }));
     auto test_array = test.dump();
     REQUIRE(trim_string(test_array) == trim_string(array_string));
 
-    test = json::array(true, false, 1);
+    test = easyjson::array(true, false, 1);
 
-    REQUIRE(test.JSON_type() == json::JSON::Class::Array);
+    REQUIRE(test.JSON_type() == easyjson::JSON::Class::Array);
     REQUIRE(trim_string(test) == "[true,false,1]");
 }
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::object")
 {
-    json::JSON test = json::object();
-    test["a"] = json::object();
-    test["a"]["b"] = json::object();
-    test["a"]["b"]["c"] = json::JSON("d");
-    test["b"] = json::JSON(1);
-    test["c"] = json::JSON(false);
+    easyjson::JSON test = easyjson::object();
+    test["a"] = easyjson::object();
+    test["a"]["b"] = easyjson::object();
+    test["a"]["b"]["c"] = easyjson::JSON("d");
+    test["b"] = easyjson::JSON(1);
+    test["c"] = easyjson::JSON(false);
     auto test_object = test.dump();
     auto expected = "{\n  \"a\" : {\n    \"b\" : {\n      \"c\" : \"d\"\n    "
                     "}\n  },\n  \"b\" : 1,\n  \"c\" : false\n}";
@@ -146,15 +146,16 @@ TEST_CASE_METHOD(JSON_Fixture, "JSON::object")
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::load")
 {
-    json::JSON obj = json::JSON::load(object_string);
+    easyjson::JSON obj = easyjson::JSON::load(object_string);
 
     REQUIRE(trim_string(obj) == trim_string(object_string));
 }
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::load_file")
 {
-    json::JSON test_1 = json::JSON::load_file("./test/cases/test.json");
-    json::JSON test_2 = json::JSON::load_file("./test/cases/test9.json");
+    easyjson::JSON test_1 = easyjson::JSON::load_file("./test/cases/test.json");
+    easyjson::JSON test_2 =
+        easyjson::JSON::load_file("./test/cases/test9.json");
 
     std::string expected =
         R"qaud({
@@ -198,21 +199,21 @@ TEST_CASE_METHOD(JSON_Fixture, "JSON::load_file")
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::make")
 {
-    json::JSON obj = json::JSON::make(json::JSON::Class::Boolean);
+    easyjson::JSON obj = easyjson::JSON::make(easyjson::JSON::Class::Boolean);
 
-    REQUIRE(obj.JSON_type() == json::JSON::Class::Boolean);
+    REQUIRE(obj.JSON_type() == easyjson::JSON::Class::Boolean);
     REQUIRE(std::string{ obj } == "false");
 }
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::to_map")
 {
     auto test = object_test.to_map();
-    REQUIRE(test.at("a").JSON_type() == json::JSON::Class::Object);
+    REQUIRE(test.at("a").JSON_type() == easyjson::JSON::Class::Object);
     std::string expected = R"qaud({"b":"c"})qaud";
     auto expected_2 = "[1,2,3]";
     REQUIRE(trim_string(std::string{ test.at("a") }) == expected);
-    REQUIRE(test["b"] == json::JSON(1));
-    REQUIRE(test["c"] == json::JSON(false));
+    REQUIRE(test["b"] == easyjson::JSON(1));
+    REQUIRE(test["c"] == easyjson::JSON(false));
 }
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::object_range")
@@ -223,7 +224,7 @@ TEST_CASE_METHOD(JSON_Fixture, "JSON::object_range")
         REQUIRE(test.first == expected[index]);
         if (index == 0UL) {
             REQUIRE(test.second ==
-                    json::JSON::load(" {\n    \"b\" : \"c\"\n  }"));
+                    easyjson::JSON::load(" {\n    \"b\" : \"c\"\n  }"));
         }
         index++;
     }
@@ -233,10 +234,10 @@ TEST_CASE_METHOD(JSON_Fixture, "JSON::to_deque")
 {
     auto test = array_test.to_deque();
     std::string expected = R"qaud({"d":"e"})qaud";
-    REQUIRE(test[0] == json::JSON{ "a" });
-    REQUIRE(test[1] == json::JSON{ "b" });
-    REQUIRE(test[2] == json::JSON{ "c" });
-    REQUIRE(test[3] == json::JSON::load(expected));
+    REQUIRE(test[0] == easyjson::JSON{ "a" });
+    REQUIRE(test[1] == easyjson::JSON{ "b" });
+    REQUIRE(test[2] == easyjson::JSON{ "c" });
+    REQUIRE(test[3] == easyjson::JSON::load(expected));
 }
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::array_range")
@@ -254,7 +255,7 @@ TEST_CASE_METHOD(JSON_Fixture, "JSON::array_range")
 TEST_CASE_METHOD(JSON_Fixture, "JSON::is_null")
 {
     REQUIRE(null_test.is_null() == true);
-    REQUIRE(json::JSON{}.is_null() == true);
+    REQUIRE(easyjson::JSON{}.is_null() == true);
 }
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::to_string")
@@ -283,7 +284,7 @@ TEST_CASE_METHOD(JSON_Fixture, "JSON::to_bool")
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::JSON_type")
 {
-    using namespace json;
+    using namespace easyjson;
     REQUIRE(object_test.JSON_type() == JSON::Class::Object);
     REQUIRE(array_test.JSON_type() == JSON::Class::Array);
     REQUIRE(bool_test.JSON_type() == JSON::Class::Boolean);
@@ -315,12 +316,12 @@ TEST_CASE_METHOD(JSON_Fixture, "JSON::has_key")
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::append")
 {
-    auto test = json::JSON::load(array_string);
+    auto test = easyjson::JSON::load(array_string);
     test.append("abc");
     test.append(123);
     REQUIRE(test.size() == 6);
-    REQUIRE(test[test.size() - 1] == json::JSON{ 123 });
-    REQUIRE(test[test.size() - 2] == json::JSON{ "abc" });
+    REQUIRE(test[test.size() - 1] == easyjson::JSON{ 123 });
+    REQUIRE(test[test.size() - 2] == easyjson::JSON{ "abc" });
 }
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::dump")

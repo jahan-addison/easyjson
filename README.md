@@ -1,8 +1,8 @@
-# simplejson++
+# easyjson
 
-simplejson++ is a lightweight JSON library for exporting data in JSON format from C++. Due to its design, you're able to create and work with JSON objects right away, just as you would expect from a language such as JavaScript. simplejson++ is a single C++ header file, "simplejson.h".
+easyjson is a lightweight library for working with JSON in modern C++. Due to its design, you can jump right in and start creating and using JSON objects right away, just as you would in a scripting language.
 
-simplejson++ requires at least **C++17**, and has been tested with clang-18 and gcc-10 on macOS (arm) and Ubuntu.
+The library requires at least **C++17**, and has been tested with clang-18 and gcc-10 on macOS (arm) and Ubuntu.
 
 This library was primarily created for [Credence](https://github.com/jahan-addison/credence/).
 
@@ -12,7 +12,7 @@ This library was primarily created for [Credence](https://github.com/jahan-addis
 
 * Intuitive construction of JSON objects and JSON from strings or file path
 * STL-container type conversion and range access helpers for data types
-* [No memory leaks](https://github.com/jahan-addison/simplejson/actions/runs/17600602459/job/50001743753#step:8:661)
+* [No memory leaks](https://github.com/jahan-addison/easyjson/actions/runs/17600602459/job/50001743753#step:8:661)
 * Total header size is _25kb_
 * No dependencies
 * Compiles with Address, Undefined `-fsanitizers`
@@ -31,16 +31,16 @@ Either copy the header file into your project, or use `FetchContent` in cmake su
 include(FetchContent)
 
 FetchContent_Declare(
-    simplejson
-    GIT_REPOSITORY https://github.com/jahan-addison/simplejson.git
-    GIT_TAG v1.1.13
+    easyjson
+    GIT_REPOSITORY https://github.com/jahan-addison/easyjson.git
+    GIT_TAG v1.2.0
 )
 
-FetchContent_MakeAvailable(simplejson)
+FetchContent_MakeAvailable(easyjson)
 
 # ...
 
-target_include_directories(${PROJECT_NAME} PUBLIC simplejson)
+target_include_directories(${PROJECT_NAME} PUBLIC easyjson)
 
 
 ```
@@ -49,15 +49,15 @@ target_include_directories(${PROJECT_NAME} PUBLIC simplejson)
 
 ```C++
 #include <iostream>
-#include <simplejson.h>
+#include <easyjson.h>
 
 int main()
 {
-    json::JSON obj;
+    easyjson::JSON obj;
     // Create a new Array as a field of an Object
-    obj["array"] = json::array(true, "Two", 3, 4.0);
+    obj["array"] = easyjson::array(true, "Two", 3, 4.0);
     // Create a new Object as a field of another Object
-    obj["obj"] = json::object();
+    obj["obj"] = easyjson::object();
     // Assign to one of the inner object's fields
     obj["obj"]["inner"] = "Inside";
 
@@ -66,7 +66,7 @@ int main()
     obj["array2"].append(false, "three");
 
     // We can also parse a std::string into a JSON object:
-    obj["parsed"] = json::JSON::load("[ { \"Key\" : \"Value\" }, false ]");
+    obj["parsed"] = easyjson::JSON::load("[ { \"Key\" : \"Value\" }, false ]");
     // Convert the second JSON array into a std::deque<JSON>
     auto my_array = obj["array2"].to_deque();
     // Dump the whole object
@@ -80,7 +80,7 @@ int main()
 ## API
 
 ```C++
-namespace json {
+namespace easyjson {
 
     /// Create a new JSON Array.
     JSON array( [any_type [, ... ] ] );
@@ -111,7 +111,7 @@ namespace json {
         /// Create a JSON object from a json file.
         JSON load_file( string_type );
 
-        /// Create a JSON object with the specified json::Class type.
+        /// Create a JSON object with the specified easyjson::Class type.
         JSON make( JSON::Class );
 
         /**

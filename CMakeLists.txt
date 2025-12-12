@@ -5,8 +5,8 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 endif()
 
 project(
-  simplejson
-  VERSION 1.1.13
+  easyjson
+  VERSION 1.2.0
   LANGUAGES CXX
 )
 
@@ -17,14 +17,14 @@ include(CMakeDependentOption)
 include(cmake/CPM.cmake)
 include(Warnings)
 
-cmake_dependent_option(SIMPLEJSON_BUILD_EXAMPLES
+cmake_dependent_option(EASYJSON_BUILD_EXAMPLES
     "Enable ${PROJECT_NAME} project example targets" OFF
-    "SIMPLEJSON_BUILD_EXAMPLES" OFF
+    "EASYJSON_BUILD_EXAMPLES" OFF
 )
 
-cmake_dependent_option(SIMPLEJSON_BUILD_TESTS
+cmake_dependent_option(EASYJSON_BUILD_TESTS
     "Enable ${PROJECT_NAME} project tests targets" OFF
-    "SIMPLEJSON_BUILD_TESTS" OFF
+    "EASYJSON_BUILD_TESTS" OFF
 )
 
 CPMAddPackage("gh:StableCoder/cmake-scripts#24.04")
@@ -45,7 +45,7 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:include>
 )
 
-if(SIMPLEJSON_BUILD_TESTS)
+if(EASYJSON_BUILD_TESTS)
   set(BUILD_TESTING OFF)
   include(FetchContent)
   FetchContent_Declare(
@@ -61,16 +61,16 @@ if(SIMPLEJSON_BUILD_TESTS)
   add_executable(Test_Suite "${CMAKE_CURRENT_SOURCE_DIR}/test/test.cc")
   set_target_properties(Test_Suite PROPERTIES CXX_STANDARD 17)
 
-  target_link_libraries(Test_Suite PRIVATE simplejson Catch2WithMain)
+  target_link_libraries(Test_Suite PRIVATE easyjson Catch2WithMain)
 
   # C++20
   add_executable(Test_Suite_CPP20 "${CMAKE_CURRENT_SOURCE_DIR}/test/test.cc")
   set_target_properties(Test_Suite_CPP20 PROPERTIES CXX_STANDARD 20)
-  target_link_libraries(Test_Suite_CPP20 PRIVATE simplejson Catch2WithMain)
+  target_link_libraries(Test_Suite_CPP20 PRIVATE easyjson Catch2WithMain)
 
 endif()
 
-if(SIMPLEJSON_BUILD_EXAMPLES)
+if(EASYJSON_BUILD_EXAMPLES)
 
   file(GLOB_RECURSE headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
   file(GLOB_RECURSE sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/examples/*.cc")
@@ -87,6 +87,6 @@ if(SIMPLEJSON_BUILD_EXAMPLES)
                               $<INSTALL_INTERFACE:${example_name}-${PROJECT_VERSION}>
       )
 
-      target_link_libraries(${example_name} PRIVATE simplejson)
+      target_link_libraries(${example_name} PRIVATE easyjson)
   endforeach()
 endif()

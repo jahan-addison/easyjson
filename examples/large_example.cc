@@ -1,13 +1,13 @@
 
+#include <easyjson.h>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <simplejson.h>
 #include <string_view>
 
 namespace fs = std::filesystem;
 
-using json::JSON;
+using easyjson::JSON;
 
 int main()
 {
@@ -300,7 +300,7 @@ int main()
         "\"block\"\n      },\n      \"root\" : \"convert\"\n    }],\n  "
         "\"node\" : \"program\",\n  \"root\" : \"definitions\"\n}\n";
 
-    JSON large_json = json::JSON::load(AST.data());
+    JSON large_json = easyjson::JSON::load(AST.data());
     large_json.dump_keys();
     std::cout << std::endl << large_json.dump() << std::endl;
 }

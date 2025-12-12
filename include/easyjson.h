@@ -1,8 +1,8 @@
-/***************
- * simplejson++
- ***************
+/***********
+ * easyjson
+ ***********
 
- * Copyright (c) Jahan Addison
+ * Copyright (c) Jahan Addison 2025
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@
 #include <variant>
 #include <vector>
 
-namespace json {
+namespace easyjson {
 
 class JSON;
 
@@ -125,7 +125,6 @@ class JSON
     };
 
   public:
-  public:
     JSON()
         : Internal()
         , Type(Class::Null)
@@ -183,8 +182,7 @@ class JSON
 #endif
 
     template<typename T>
-    explicit JSON(
-        T b,
+    explicit JSON(T b,
         typename std::enable_if<std::is_same<T, bool>::value>::type* = nullptr)
         : Internal(b)
         , Type(Class::Boolean)
@@ -192,8 +190,7 @@ class JSON
     }
 
     template<typename T>
-    explicit JSON(
-        T i,
+    explicit JSON(T i,
         typename std::enable_if<std::is_integral<T>::value &&
                                 !std::is_same<T, bool>::value>::type* = nullptr)
         : Internal(static_cast<long>(i))
@@ -202,8 +199,7 @@ class JSON
     }
 
     template<typename T>
-    explicit JSON(
-        T f,
+    explicit JSON(T f,
         typename std::enable_if<std::is_floating_point<T>::value>::type* =
             nullptr)
         : Internal(static_cast<double>(f))
@@ -212,8 +208,7 @@ class JSON
     }
 
     template<typename T>
-    explicit JSON(
-        T s,
+    explicit JSON(T s,
         typename std::enable_if<
             std::is_convertible<T, std::string>::value>::type* = nullptr)
         : Internal(std::string(s))
@@ -258,7 +253,7 @@ class JSON
     }
 
     template<typename Type,
-             typename = std::enable_if<detail::is_Object_Variant<Type>>>
+        typename = std::enable_if<detail::is_Object_Variant<Type>>>
     friend std::optional<std::shared_ptr<Type>> make_data_object()
     {
         if constexpr (std::is_same_v<Type, detail::JSON_Map>) {
@@ -334,7 +329,7 @@ class JSON
     }
 
     template<typename Container,
-             typename = std::enable_if<detail::is_Object_Variant<Container>>>
+        typename = std::enable_if<detail::is_Object_Variant<Container>>>
     class JSON_Wrapper
     {
         using Container_PTR = std::shared_ptr<Container>;
@@ -375,7 +370,7 @@ class JSON
     };
 
     template<typename Container,
-             typename = std::enable_if<detail::is_Object_Variant<Container>>>
+        typename = std::enable_if<detail::is_Object_Variant<Container>>>
     class JSON_Const_Wrapper
     {
         using Container_PTR = std::shared_ptr<Container>;
@@ -445,7 +440,7 @@ class JSON
     template<typename T>
     typename std::enable_if<std::is_integral<T>::value &&
                                 !std::is_same<T, bool>::value,
-                            JSON&>::type
+        JSON&>::type
     operator=(T i)
     {
         set_type(Class::Integral);
@@ -464,7 +459,7 @@ class JSON
 
     template<typename T>
     typename std::enable_if<std::is_convertible<T, std::string>::value,
-                            JSON&>::type
+        JSON&>::type
     operator=(T s)
     {
         set_type(Class::String);
@@ -538,9 +533,9 @@ class JSON
         auto data = *Internal.Map.value();
         std::vector<std::string> keys{};
         std::transform(data.begin(),
-                       data.end(),
-                       std::back_inserter(keys),
-                       [](const auto& pair) { return pair.first; });
+            data.end(),
+            std::back_inserter(keys),
+            [](const auto& pair) { return pair.first; });
         return keys;
     }
 
@@ -997,4 +992,4 @@ inline JSON JSON::load_file(std::string_view path)
     return JSON::load(result);
 }
 
-} // namespace json
+} // namespace easyjson

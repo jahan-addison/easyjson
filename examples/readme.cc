@@ -1,13 +1,13 @@
+#include <easyjson.h>
 #include <iostream>
-#include <simplejson.h>
 
 int main()
 {
-    json::JSON obj;
+    easyjson::JSON obj;
     // Create a new Array as a field of an Object
-    obj["array"] = json::array(true, "Two", 3, 4.0);
+    obj["array"] = easyjson::array(true, "Two", 3, 4.0);
     // Create a new Object as a field of another Object
-    obj["obj"] = json::object();
+    obj["obj"] = easyjson::object();
     // Assign to one of the inner object's fields
     obj["obj"]["inner"] = "Inside";
 
@@ -16,7 +16,7 @@ int main()
     obj["array2"].append(false, "three");
 
     // We can also parse a std::string into a JSON object:
-    obj["parsed"] = json::JSON::load("[ { \"Key\" : \"Value\" }, false ]");
+    obj["parsed"] = easyjson::JSON::load("[ { \"Key\" : \"Value\" }, false ]");
     // Convert the second JSON array into a std::deque<JSON>
     auto my_array = obj["array2"].to_deque();
     // Dump the whole object
