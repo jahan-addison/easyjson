@@ -1,25 +1,21 @@
 # easyjson
 
-easyjson is a lightweight library for working with JSON in modern C++. Due to its design, you can jump right in and start creating and using JSON objects right away, just as you would in a scripting language.
+Easyjson is a lightweight JSON library in 25kb for modern C++. It has been tested with clang-18 and gcc-10 on macOS (arm) and Ubuntu, and requires at least C++17.  The primary difference between easyjson and [nlohmann/json](https://github.com/nlohmann/json) is that you will never need to write your own serializers and specialized conversion methods for STL containers, [particularly for large JSON](https://github.com/jahan-addison/easyjson/blob/master/test/cases/ast.json). That makes this a good option for projects where you need to load large JSON and get started quickly.
 
-The library requires at least **C++17**, and has been tested with clang-18 and gcc-10 on macOS (arm) and Ubuntu.
-
-This library was primarily created for [Credence](https://github.com/jahan-addison/credence/).
+This library was created for [Credence](https://github.com/jahan-addison/credence/), a compiler for x86-64 and ARM64 - which battletested use cases.
 
 ---
 
 ## Major Features
 
-* Intuitive construction of JSON objects and JSON from strings or file path
+* Intuitive encoding of large JSON objects from strings and file paths
+* Easy library installation via `FetchContent` or copying the header
 * STL-container type conversion and range access helpers for data types
-* [No memory leaks](https://github.com/jahan-addison/easyjson/actions/runs/17600602459/job/50001743753#step:8:661)
-* Total header size is _25kb_
+* No memory leaks
+* Total header size is **25kb**
 * No dependencies
 * Compiles with Address, Undefined `-fsanitizers`
-* Uses `constexpr` and `const` where possible
-* Easy library installation via `FetchContent` or copying the header
-* No use of `new` and `delete`, with no `null` usage
-  * Uses `shared_ptr` where necessary, with no dangling pointers
+* Compile-time `constexpr` and where possible
 
 See the API and example below, more in `examples/` directory.
 
@@ -33,7 +29,7 @@ include(FetchContent)
 FetchContent_Declare(
     easyjson
     GIT_REPOSITORY https://github.com/jahan-addison/easyjson.git
-    GIT_TAG v1.2.0
+    GIT_TAG v1.2.1
 )
 
 FetchContent_MakeAvailable(easyjson)

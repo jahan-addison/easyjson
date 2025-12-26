@@ -1,7 +1,7 @@
-/***********
+/***************************************************************************
  * easyjson
  ***********
-
+ *
  * Copyright (c) Jahan Addison 2025
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -747,8 +747,8 @@ JSON parse_object(std::string const& str, size_t& offset) noexcept
         JSON Key = parse_next(str, offset);
         consume_ws(str, offset);
         if (str[offset] != ':') {
-            std::cerr << "Error: Object: Expected colon, found '" << str[offset]
-                      << "'\n";
+            std::cerr << "[easyjson] Warning - Object: Expected colon, found '"
+                      << str[offset] << "'\n";
             break;
         }
         consume_ws(str, ++offset);
@@ -763,8 +763,8 @@ JSON parse_object(std::string const& str, size_t& offset) noexcept
             ++offset;
             break;
         } else {
-            std::cerr << "ERROR: object: Expected comma, found '" << str[offset]
-                      << "'\n";
+            std::cerr << "[easyjson] Warning - object: Expected comma, found '"
+                      << str[offset] << "'\n";
             break;
         }
     }
@@ -795,8 +795,9 @@ JSON parse_array(std::string const& str, size_t& offset) noexcept
             ++offset;
             break;
         } else {
-            std::cerr << "ERROR: Array: Expected ',' or ']', found '"
-                      << str[offset] << "'\n";
+            std::cerr
+                << "[easyjson] Warning - Array: Expected ',' or ']', found '"
+                << str[offset] << "'\n";
             return JSON::make(JSON::Class::Array);
         }
     }
@@ -843,9 +844,10 @@ JSON parse_string(std::string const& str, size_t& offset) noexcept
                             (c >= 'A' && c <= 'F'))
                             val += c;
                         else {
-                            std::cerr << "ERROR: String: Expected hex "
-                                         "character in unicode escape, found '"
-                                      << c << "'\n";
+                            std::cerr
+                                << "[easyjson] Warning - String: Expected hex "
+                                   "character in unicode escape, found '"
+                                << c << "'\n";
                             return JSON::make(JSON::Class::String);
                         }
                     }
@@ -891,16 +893,17 @@ JSON parse_number(std::string const& str, size_t& offset) noexcept
             if (c >= '0' && c <= '9')
                 exp_str += c;
             else if (!isspace(c) && c != ',' && c != ']' && c != '}') {
-                std::cerr
-                    << "ERROR: Number: Expected a number for exponent, found '"
-                    << c << "'\n";
+                std::cerr << "[easyjson] Warning - Number: Expected a number "
+                             "for exponent, found '"
+                          << c << "'\n";
                 return JSON::make(JSON::Class::Null);
             } else
                 break;
         }
         exp = std::stol(exp_str);
     } else if (!isspace(c) && c != ',' && c != ']' && c != '}') {
-        std::cerr << "ERROR: Number: unexpected character '" << c << "'\n";
+        std::cerr << "[easyjson] Warning - Number: unexpected character '" << c
+                  << "'\n";
         return JSON::make(JSON::Class::Null);
     }
     --offset;
@@ -923,8 +926,9 @@ JSON parse_bool(std::string const& str, size_t& offset) noexcept
     else if (str.substr(offset, 5) == "false")
         Bool = false;
     else {
-        std::cerr << "ERROR: Bool: Expected 'true' or 'false', found '"
-                  << str.substr(offset, 5) << "'\n";
+        std::cerr
+            << "[easyjson] Warning - Bool: Expected 'true' or 'false', found '"
+            << str.substr(offset, 5) << "'\n";
         return JSON::make(JSON::Class::Null);
     }
     offset += (Bool.to_bool() ? 4 : 5);
@@ -934,7 +938,7 @@ JSON parse_null(std::string const& str, size_t& offset)
 {
     JSON Null;
     if (str.substr(offset, 4) != "null") {
-        std::cerr << "ERROR: Null: Expected 'null', found '"
+        std::cerr << "[easyjson] Warning - Null: Expected 'null', found '"
                   << str.substr(offset, 4) << "'\n";
         return JSON::make(JSON::Class::Null);
     }
@@ -962,7 +966,8 @@ JSON parse_next(std::string const& str, size_t& offset) noexcept
             if ((value <= '9' && value >= '0') || value == '-')
                 return parse_number(str, offset);
     }
-    std::cerr << "ERROR: Parse: Unknown starting character '" << value << "'\n";
+    std::cerr << "[easyjson] Warning - Parse: Unknown starting character '"
+              << value << "'\n";
     return JSON();
 }
 
