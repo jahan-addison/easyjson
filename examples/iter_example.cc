@@ -1,5 +1,6 @@
 
 #include <easyjson.h>
+
 #include <iostream>
 
 using easyjson::JSON;

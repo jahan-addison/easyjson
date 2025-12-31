@@ -1,6 +1,5 @@
 /***************************************************************************
  * easyjson
- ***********
  *
  * Copyright (c) Jahan Addison 2025
  *
@@ -20,30 +19,61 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cctype>
-#include <cmath>
-#include <cstdint>
-#include <deque>
-#include <filesystem>
-#include <fstream>
-#include <initializer_list>
-#include <iostream>
-#include <map>
-#include <memory>
-#include <optional>
-#include <ostream>
-#include <string>
-#include <string_view>
-#include <type_traits>
-#include <variant>
-#include <vector>
+#include <algorithm>        // for transform
+#include <cctype>           // for isspace
+#include <cmath>            // for pow
+#include <deque>            // for deque, operator==
+#include <filesystem>       // for file_size, path
+#include <fstream>          // for basic_ifstream, basic_ios
+#include <initializer_list> // for initializer_list
+#include <iterator>         // for back_insert_iterator, back...
+#include <map>              // for map, operator!=, operator==
+#include <memory>           // for allocator, shared_ptr, mak...
+#include <optional>         // for optional, nullopt
+#include <ostream>          // for operator<<, basic_ostream
+#include <sstream>          // for basic_ostringstream
+#include <stdexcept>        // for runtime_error
+#include <string>           // for basic_string, string, oper...
+#include <string_view>      // for basic_string_view, string_...
+#include <type_traits>      // for enable_if, is_same_v, is_same
+#include <utility>          // for forward, move
+#include <variant>          // for monostate, get, variant
+#include <vector>           // for vector
 
 namespace easyjson {
 
 class JSON;
 
 namespace detail {
+
+class easyjson_error : public std::runtime_error
+{
+  public:
+    using std::runtime_error::runtime_error;
+
+    virtual ~easyjson_error() noexcept;
+};
+
+easyjson_error::~easyjson_error() noexcept = default;
+
+struct formatter
+{
+    template<typename... Args>
+    std::string operator()(Args&&... args) const
+    {
+        std::ostringstream oss;
+        (oss << ... << std::forward<Args>(args));
+
+        return oss.str();
+    }
+    template<typename... Args>
+    static std::string format(Args&&... args)
+    {
+        std::ostringstream oss;
+        (oss << ... << std::forward<Args>(args));
+        return oss.str();
+    }
+};
 
 using JSON_Deque = std::deque<JSON>;
 using JSON_String = std::string;
@@ -309,20 +339,20 @@ class JSON
 
     bool inline operator!=(JSON const& rhs) { return !(this->operator==(rhs)); }
 
-    inline std::map<std::string, JSON> make_empty_map() const noexcept
+    inline std::map<std::string, JSON> make_empty_map() const
     {
         return std::map<std::string, JSON>{};
     }
 
-    inline std::deque<JSON> make_empty_list() const noexcept
+    inline std::deque<JSON> make_empty_list() const
     {
         return std::deque<JSON>{};
     }
 
 #if __cplusplus >= 202002L
-    constexpr inline std::string make_empty_string() const noexcept
+    constexpr inline std::string make_empty_string() const
 #else
-    inline std::string make_empty_string() const noexcept
+    inline std::string make_empty_string() const
 #endif
     {
         return std::string{};
@@ -346,23 +376,22 @@ class JSON
         {
         }
 
-        constexpr inline typename Container::iterator begin() noexcept
+        constexpr inline typename Container::iterator begin()
         {
             return object ? object.value()->begin()
                           : typename Container::iterator();
         }
-        constexpr inline typename Container::iterator end() noexcept
+        constexpr inline typename Container::iterator end()
         {
             return object ? object.value()->end()
                           : typename Container::iterator();
         }
-        constexpr inline typename Container::const_iterator begin()
-            const noexcept
+        constexpr inline typename Container::const_iterator begin() const
         {
             return object ? object.value()->begin()
                           : typename Container::iterator();
         }
-        constexpr inline typename Container::const_iterator end() const noexcept
+        constexpr inline typename Container::const_iterator end() const
         {
             return object ? object.value()->end()
                           : typename Container::iterator();
@@ -390,13 +419,12 @@ class JSON
         {
             return object.value()->at(index);
         }
-        constexpr inline typename Container::const_iterator begin()
-            const noexcept
+        constexpr inline typename Container::const_iterator begin() const
         {
             return object ? object.value()->begin()
                           : typename Container::const_iterator();
         }
-        constexpr inline typename Container::const_iterator end() const noexcept
+        constexpr inline typename Container::const_iterator end() const
         {
             return object ? object.value()->end()
                           : typename Container::const_iterator();
@@ -410,7 +438,7 @@ class JSON
         return ret;
     }
 
-    static JSON load(std::string_view) noexcept;
+    static JSON load(std::string_view);
 
     static JSON load_file(std::string_view);
 
@@ -467,19 +495,19 @@ class JSON
         return *this;
     }
 
-    inline JSON& operator[](std::string const& key) noexcept
+    inline JSON& operator[](std::string const& key)
     {
         set_type(Class::Object);
         return Internal.Map.value()->operator[](key);
     }
 
-    inline const JSON& operator[](std::string const& key) const noexcept
+    inline const JSON& operator[](std::string const& key) const
     {
         set_type(Class::Object);
         return Internal.Map.value()->operator[](key);
     }
 
-    inline JSON& operator[](unsigned index) noexcept
+    inline JSON& operator[](unsigned index)
     {
         set_type(Class::Array);
         if (index >= Internal.List.value()->size())
@@ -539,7 +567,7 @@ class JSON
         return keys;
     }
 
-    constexpr inline size_t size() const noexcept
+    constexpr inline size_t size() const
     {
         if (Type == Class::Object)
             return Internal.Map.value()->size();
@@ -549,14 +577,14 @@ class JSON
             return -1UL;
     }
 
-    constexpr inline Class JSON_type() const noexcept { return Type; }
+    constexpr inline Class JSON_type() const { return Type; }
 
     constexpr inline bool is_null() const { return Type == Class::Null; }
 
 #if __cplusplus >= 202002L
-    constexpr inline detail::JSON_String to_string() const noexcept
+    constexpr inline detail::JSON_String to_string() const
 #else
-    inline detail::JSON_String to_string() const noexcept
+    inline detail::JSON_String to_string() const
 #endif
     {
         return Type == Class::String
@@ -564,43 +592,43 @@ class JSON
                    : std::string("");
     }
 
-    inline detail::JSON_Deque to_deque() const noexcept
+    inline detail::JSON_Deque to_deque() const
     {
         return Type == Class::Array ? *Internal.List.value()
                                     : make_empty_list();
     }
 
-    inline detail::JSON_Map to_map() const noexcept
+    inline detail::JSON_Map to_map() const
     {
         return Type == Class::Object ? *Internal.Map.value() : make_empty_map();
     }
 
-    constexpr inline double to_float() const noexcept
+    constexpr inline double to_float() const
     {
         return Type == Class::Floating ? std::get<double>(Internal.data_) : 0.0;
     }
 
-    constexpr inline long to_int() const noexcept
+    constexpr inline long to_int() const
     {
         return Type == Class::Integral ? std::get<long>(Internal.data_) : 0;
     }
 
-    constexpr inline bool to_bool() const noexcept
+    constexpr inline bool to_bool() const
     {
         return Type == Class::Boolean ? std::get<bool>(Internal.data_) : false;
     }
 
-    inline JSON_Wrapper<detail::JSON_Map> object_range() const noexcept
+    inline JSON_Wrapper<detail::JSON_Map> object_range() const
     {
         return JSON_Wrapper<detail::JSON_Map>(Internal.Map.value());
     }
 
-    inline JSON_Wrapper<detail::JSON_Deque> array_range() const noexcept
+    inline JSON_Wrapper<detail::JSON_Deque> array_range() const
     {
         return JSON_Wrapper<detail::JSON_Deque>(Internal.List.value());
     }
 
-    std::string dump(int depth = 1, std::string tab = "  ") const noexcept
+    std::string dump(int depth = 1, std::string tab = "  ") const
     {
         std::string pad = "";
         for (int i = 0; i < depth; ++i, pad += tab)
@@ -649,7 +677,7 @@ class JSON
     friend std::ostream& operator<<(std::ostream&, const JSON&);
 
   private:
-    inline void set_type(Class type) const noexcept
+    inline void set_type(Class type) const
     {
         if (type == Type)
             return;
@@ -690,20 +718,20 @@ class JSON
     mutable Class Type = Class::Null;
 };
 
-inline JSON array() noexcept
+inline JSON array()
 {
     return JSON::make(JSON::Class::Array);
 }
 
 template<typename... T>
-inline JSON array(T... args) noexcept
+inline JSON array(T... args)
 {
     JSON arr = JSON::make(JSON::Class::Array);
     arr.append(args...);
     return arr;
 }
 
-inline JSON object() noexcept
+inline JSON object()
 {
     return JSON::make(JSON::Class::Object);
 }
@@ -724,15 +752,15 @@ Type get_safe_data_object(std::optional<std::shared_ptr<Type>> const& type)
 
 namespace {
 
-JSON parse_next(std::string const&, size_t&) noexcept;
+JSON parse_next(std::string const&, size_t&);
 
-inline void consume_ws(std::string const& str, size_t& offset) noexcept
+inline void consume_ws(std::string const& str, size_t& offset)
 {
     while (isspace(str[offset]))
         ++offset;
 }
 
-JSON parse_object(std::string const& str, size_t& offset) noexcept
+inline JSON parse_object(std::string const& str, size_t& offset)
 {
     JSON obj = JSON::make(JSON::Class::Object);
 
@@ -747,8 +775,8 @@ JSON parse_object(std::string const& str, size_t& offset) noexcept
         JSON Key = parse_next(str, offset);
         consume_ws(str, offset);
         if (str[offset] != ':') {
-            std::cerr << "[easyjson] Warning - Object: Expected colon, found '"
-                      << str[offset] << "'\n";
+            throw detail::easyjson_error(detail::formatter::format(
+                "Object : Expected colon, found '", str[offset], "'"));
             break;
         }
         consume_ws(str, ++offset);
@@ -763,8 +791,8 @@ JSON parse_object(std::string const& str, size_t& offset) noexcept
             ++offset;
             break;
         } else {
-            std::cerr << "[easyjson] Warning - object: Expected comma, found '"
-                      << str[offset] << "'\n";
+            throw detail::easyjson_error(detail::formatter::format(
+                "Object : Expected comma, found '", str[offset], "'"));
             break;
         }
     }
@@ -772,7 +800,7 @@ JSON parse_object(std::string const& str, size_t& offset) noexcept
     return obj;
 }
 
-JSON parse_array(std::string const& str, size_t& offset) noexcept
+inline JSON parse_array(std::string const& str, size_t& offset)
 {
     JSON arr = JSON::make(JSON::Class::Array);
     unsigned index = 0;
@@ -795,9 +823,8 @@ JSON parse_array(std::string const& str, size_t& offset) noexcept
             ++offset;
             break;
         } else {
-            std::cerr
-                << "[easyjson] Warning - Array: Expected ',' or ']', found '"
-                << str[offset] << "'\n";
+            throw detail::easyjson_error(detail::formatter::format(
+                "Array: Expected ',' or ']', found '", str[offset], "'"));
             return JSON::make(JSON::Class::Array);
         }
     }
@@ -805,7 +832,7 @@ JSON parse_array(std::string const& str, size_t& offset) noexcept
     return arr;
 }
 
-JSON parse_string(std::string const& str, size_t& offset) noexcept
+inline JSON parse_string(std::string const& str, size_t& offset)
 {
     JSON String;
     std::string val;
@@ -844,10 +871,12 @@ JSON parse_string(std::string const& str, size_t& offset) noexcept
                             (c >= 'A' && c <= 'F'))
                             val += c;
                         else {
-                            std::cerr
-                                << "[easyjson] Warning - String: Expected hex "
-                                   "character in unicode escape, found '"
-                                << c << "'\n";
+                            throw detail::easyjson_error(
+                                detail::formatter::format(
+                                    "String: Expected hex character in unicode "
+                                    "escape, found '",
+                                    c,
+                                    "'"));
                             return JSON::make(JSON::Class::String);
                         }
                     }
@@ -865,7 +894,7 @@ JSON parse_string(std::string const& str, size_t& offset) noexcept
     return String;
 }
 
-JSON parse_number(std::string const& str, size_t& offset) noexcept
+inline JSON parse_number(std::string const& str, size_t& offset)
 {
     JSON Number;
     std::string val, exp_str;
@@ -893,17 +922,16 @@ JSON parse_number(std::string const& str, size_t& offset) noexcept
             if (c >= '0' && c <= '9')
                 exp_str += c;
             else if (!isspace(c) && c != ',' && c != ']' && c != '}') {
-                std::cerr << "[easyjson] Warning - Number: Expected a number "
-                             "for exponent, found '"
-                          << c << "'\n";
+                throw detail::easyjson_error(detail::formatter::format(
+                    "Number: Expected a number for exponent, found '", c, "'"));
                 return JSON::make(JSON::Class::Null);
             } else
                 break;
         }
         exp = std::stol(exp_str);
     } else if (!isspace(c) && c != ',' && c != ']' && c != '}') {
-        std::cerr << "[easyjson] Warning - Number: unexpected character '" << c
-                  << "'\n";
+        throw detail::easyjson_error(detail::formatter::format(
+            "Number: unexpected character '", c, "'"));
         return JSON::make(JSON::Class::Null);
     }
     --offset;
@@ -918,7 +946,8 @@ JSON parse_number(std::string const& str, size_t& offset) noexcept
     }
     return Number;
 }
-JSON parse_bool(std::string const& str, size_t& offset) noexcept
+
+inline JSON parse_bool(std::string const& str, size_t& offset)
 {
     JSON Bool;
     if (str.substr(offset, 4) == "true")
@@ -926,26 +955,29 @@ JSON parse_bool(std::string const& str, size_t& offset) noexcept
     else if (str.substr(offset, 5) == "false")
         Bool = false;
     else {
-        std::cerr
-            << "[easyjson] Warning - Bool: Expected 'true' or 'false', found '"
-            << str.substr(offset, 5) << "'\n";
+        throw detail::easyjson_error(detail::formatter::format(
+            "Bool: Expected 'true' or 'false', found '",
+            str.substr(offset, 5),
+            "'"));
         return JSON::make(JSON::Class::Null);
     }
     offset += (Bool.to_bool() ? 4 : 5);
     return Bool;
 }
-JSON parse_null(std::string const& str, size_t& offset)
+
+inline JSON parse_null(std::string const& str, size_t& offset)
 {
     JSON Null;
     if (str.substr(offset, 4) != "null") {
-        std::cerr << "[easyjson] Warning - Null: Expected 'null', found '"
-                  << str.substr(offset, 4) << "'\n";
+        throw detail::easyjson_error(detail::formatter::format(
+            "Null: Expected 'null', found '", str.substr(offset, 4), "'"));
         return JSON::make(JSON::Class::Null);
     }
     offset += 4;
     return Null;
 }
-JSON parse_next(std::string const& str, size_t& offset) noexcept
+
+inline JSON parse_next(std::string const& str, size_t& offset)
 {
     char value;
     consume_ws(str, offset);
@@ -966,8 +998,8 @@ JSON parse_next(std::string const& str, size_t& offset) noexcept
             if ((value <= '9' && value >= '0') || value == '-')
                 return parse_number(str, offset);
     }
-    std::cerr << "[easyjson] Warning - Parse: Unknown starting character '"
-              << value << "'\n";
+    throw detail::easyjson_error(detail::formatter::format(
+        "Parse: Unknown starting character '", value, "'"));
     return JSON();
 }
 
@@ -977,7 +1009,7 @@ JSON parse_next(std::string const& str, size_t& offset) noexcept
 // Main API functions
 //////////////////////
 
-inline JSON JSON::load(std::string_view str) noexcept
+inline JSON JSON::load(std::string_view str)
 {
     size_t offset = 0;
     return parse_next(str.data(), offset);

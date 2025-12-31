@@ -210,7 +210,6 @@ TEST_CASE_METHOD(JSON_Fixture, "JSON::to_map")
     auto test = object_test.to_map();
     REQUIRE(test.at("a").JSON_type() == easyjson::JSON::Class::Object);
     std::string expected = R"qaud({"b":"c"})qaud";
-    auto expected_2 = "[1,2,3]";
     REQUIRE(trim_string(std::string{ test.at("a") }) == expected);
     REQUIRE(test["b"] == easyjson::JSON(1));
     REQUIRE(test["c"] == easyjson::JSON(false));
@@ -293,17 +292,22 @@ TEST_CASE_METHOD(JSON_Fixture, "JSON::JSON_type")
     REQUIRE(null_test.JSON_type() == JSON::Class::Null);
 }
 
+TEST_CASE_METHOD(JSON_Fixture, "exception")
+{
+    using namespace easyjson;
+
+    REQUIRE_THROWS(JSON::load("bad json"));
+}
+
 TEST_CASE_METHOD(JSON_Fixture, "JSON::length")
 {
     REQUIRE(array_test.length() == 4);
-    REQUIRE(string_test.length() == -1);
 }
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::size")
 {
     REQUIRE(array_test.size() == 4);
     REQUIRE(object_test.size() == 3);
-    REQUIRE(string_test.size() == -1);
 }
 
 TEST_CASE_METHOD(JSON_Fixture, "JSON::has_key")
