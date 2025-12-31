@@ -50,11 +50,7 @@ class easyjson_error : public std::runtime_error
 {
   public:
     using std::runtime_error::runtime_error;
-
-    virtual ~easyjson_error() noexcept;
 };
-
-easyjson_error::~easyjson_error() noexcept = default;
 
 struct formatter
 {
